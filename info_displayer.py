@@ -35,6 +35,9 @@ from qgis.gui import QgsMapToolEmitPoint
 # imports for the third user story 
 import requests
 
+# imports for the forth user story 
+from qgis.core import QgsGeometry, QgsFeatureRequest
+
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
@@ -211,6 +214,8 @@ class InfoDisplayer:
         self.map_tool.canvasClicked.connect(self.capture_clicked_point)
         self.iface.mapCanvas().setMapTool(self.map_tool)
         
+        # Connect the button "Rechercher" to the defined method handle_search
+        self.dlg.searchButton.clicked.connect(self.handle_search)
 
         # show the dialog
         self.dlg.show()
@@ -232,7 +237,11 @@ class InfoDisplayer:
 
     def capture_clicked_point(self, point):
         """Capture the clicked point on the map and display its coordinates in WGS 84 (EPSG:4326)."""
-    # Define the source and target coordinate reference systems
+
+        # Store the clicked point
+        self.last_clicked_point = point
+
+        # Define the source and target coordinate reference systems
         crs_source = self.iface.mapCanvas().mapSettings().destinationCrs()  # get the current CRS of the map
         crs_cible = QgsCoordinateReferenceSystem("EPSG:4326")  # WGS 84
 
@@ -287,5 +296,64 @@ class InfoDisplayer:
         self.dlg.listeCouchesPonctuelles.clear()
         self.dlg.labelvaleur_Longitude.setText("")
         self.dlg.labelvaleur_Latitude.setText("")
-        self.dlg.labelAdresse_Displayed.setText("")  
+        self.dlg.labelAdresse_Displayed.setText("") 
+
+    def create_buffer(self, clicked_point, distance_in_meters):
+        """Creates a buffer zone around the clicked point.
+        :return: a QgsGeometry object representing the buffer zone"""
+        point_geometry = QgsGeometry.fromPointXY(clicked_point)
+        buffer_geometry = point_geometry.buffer(distance_in_meters, 10)  # 10 was chosen as the number of segments for the circle
+        
+        return buffer_geometry
+    
+    def count_objects_in_buffer(self, buffer_geometry, layer):
+        """Counts the layer objects present in the buffer zone.
+
+        :return: Le nombre d'objets dans la zone tampon."""
+        # Retrieve the bounding box of the buffer zone
+        bbox = buffer_geometry.boundingBox()
+        
+        # Create a query to filter objects within the bounding box
+        request = QgsFeatureRequest().setFilterRect(bbox)
+        
+        # Count objects that intersect the bounding box
+        count = 0
+        for feature in layer.getFeatures(request):
+            if buffer_geometry.intersects(feature.geometry()):
+                count += 1
+        
+        return count
+    
+    def handle_search(self):
+        """The  function that implements the 4th user story and handles the user counting request"""
+        # Captures the distance entered by the user
+        distance_text = self.dlg.distanceInput.text()
+        try:
+            distance_meter = float(distance_text)  # Convertir en nombre
+        except ValueError:
+            self.dlg.resultDisplay.setText("Distance invalide")
+            return
+
+        # Retrieve the clicked point that is from now on stored
+        if not hasattr(self, 'last_clicked_point'):
+            self.dlg.resultDisplay.setText("Aucun point cliqué")
+            return
+        point = self.last_clicked_point
+
+        # Create the buffer zone
+        buffer_geometry = self.create_buffer(point, distance_meter)
+
+        # Retrieve the layer selected from the drop-down menu of the 1st user story
+        layer_name = self.dlg.listeCouchesPonctuelles.currentText()
+        layers = QgsProject.instance().mapLayersByName(layer_name)
+        print (layers)
+        if len(layers) > 1:
+            self.dlg.resultDisplay.setText("Attention ! plusieurs couches portent ce nom")
+            return
+        layer = layers[0] # in case there are many layers with the same name 
+
+        # Count the objects in the buffer zone
+        count = self.count_objects_in_buffer(buffer_geometry, layer)
+
+        self.dlg.resultDisplay.setText(str(count))
         
