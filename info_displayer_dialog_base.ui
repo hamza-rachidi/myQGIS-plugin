@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>571</width>
+    <width>635</width>
     <height>452</height>
    </rect>
   </property>
@@ -16,7 +16,7 @@
   <widget class="QDialogButtonBox" name="button_box">
    <property name="geometry">
     <rect>
-     <x>350</x>
+     <x>420</x>
      <y>400</y>
      <width>171</width>
      <height>41</height>
@@ -68,10 +68,12 @@
     <font>
      <family>Arial</family>
      <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
     </font>
    </property>
    <property name="text">
-    <string>Voici les coordonnées géographiques du point cliqué :</string>
+    <string>Voici quelques informations relative au point cliqué :</string>
    </property>
   </widget>
   <widget class="QLabel" name="labelLongitude">
@@ -148,6 +150,35 @@
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelAdresse">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>160</y>
+     <width>151</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Adresse BAN plus proche</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="labelAdresse_Displayed">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>180</y>
+     <width>551</width>
+     <height>51</height>
+    </rect>
    </property>
   </widget>
  </widget>
