@@ -24,7 +24,8 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
-
+# imports for the first user story 
+from qgis.core import QgsProject, QgsMapLayerType, QgsWkbTypes
 
 
 
@@ -195,6 +196,9 @@ class InfoDisplayer:
             self.first_start = False
             self.dlg = InfoDisplayerDialog()
 
+        # add the function 
+        self.populate_point_layers()
+
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
@@ -205,3 +209,12 @@ class InfoDisplayer:
             # substitute with your code.
             pass
 
+    def populate_point_layers(self):
+        """Populate the combo box with point layers from the current project."""
+        self.dlg.listeCouchesPonctuelles.clear()  # Clear the combo box before populating because the layers may change in the project 
+
+        # Iterate through all layers in the project
+        for couche in QgsProject.instance().mapLayers().values():
+            # Check if the layer is a vector layer and has point geometry before displaying, otherwise linear and polygon vector as well as rasters won't be displayed
+            if couche.type() == QgsMapLayerType.VectorLayer and couche.geometryType() == QgsWkbTypes.PointGeometry:
+                self.dlg.listeCouchesPonctuelles.addItem(couche.name())
