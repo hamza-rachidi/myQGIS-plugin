@@ -32,7 +32,8 @@ from qgis.core import QgsProject, QgsMapLayerType, QgsWkbTypes
 from qgis.core import QgsPointXY, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 from qgis.gui import QgsMapToolEmitPoint
 
-
+# imports for the third user story 
+import requests
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -254,3 +255,31 @@ class InfoDisplayer:
         # Update the labels with the coordinates
         self.dlg.labelvaleur_Longitude.setText(str(longitude))
         self.dlg.labelvaleur_Latitude.setText(str(latitude))
+
+        # Address retrieval and display
+        adresse = self.get_nearest_address(latitude, longitude)
+        self.dlg.labelAdresse_Displayed.setText(adresse)  
+        self.dlg.labelAdresse_Displayed.setReadOnly(True) # so that the user doesn't have access to change
+
+    def get_nearest_address(self, latitude, longitude):
+        """Make a request to the GeoPlatform API to obtain the nearest address."""
+        # build the url format, to get only the nearest BAN address we specify limit parameter equal to 1 and for the moment the type to housenumber
+        url = f"https://data.geopf.fr/geocodage/reverse?lat={latitude}&lon={longitude}&limit=1&type=housenumber"
+        
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  # Checks whether the request was successful
+            data = response.json()
+
+            if "features" in data and len(data["features"]) > 0:
+                properties = data["features"][0]["properties"]
+                voie = properties.get("name", "N/A")
+                code_insee = properties.get("citycode", "N/A")
+                commune = properties.get("city", "N/A")
+
+                return f"{voie}\n{code_insee}\n{commune}"
+            else:
+                return "Aucune adresse trouvée."
+        
+        except requests.RequestException as e:
+            return f"Erreur lors de la requête: {e}"

@@ -6,18 +6,33 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>571</width>
-    <height>452</height>
+    <width>627</width>
+    <height>474</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Info Displayer</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QDialog {
+    background-color: #add8e6; 
+    color: #D8DEE9; 
+    border-radius: 10px;
+}
+QLineEdit {
+    border: 1px solid #81A1C1;
+    border-radius: 4px;
+    padding: 3px;
+}
+QLabel {
+    font-weight: bold;
+}</string>
+  </property>
   <widget class="QDialogButtonBox" name="button_box">
    <property name="geometry">
     <rect>
-     <x>350</x>
-     <y>400</y>
+     <x>440</x>
+     <y>430</y>
      <width>171</width>
      <height>41</height>
     </rect>
@@ -34,9 +49,23 @@
     <rect>
      <x>30</x>
      <y>50</y>
-     <width>251</width>
-     <height>22</height>
+     <width>261</width>
+     <height>31</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Georgia</family>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QComboBox {
+    border: 1px solid gray;
+    border-radius: 3px;
+    padding: 1px 18px 1px 3px;
+    min-width: 6em;
+}</string>
    </property>
    <property name="maxVisibleItems">
     <number>30</number>
@@ -47,78 +76,71 @@
     <rect>
      <x>30</x>
      <y>30</y>
-     <width>151</width>
+     <width>241</width>
      <height>16</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Georgia</family>
+     <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
    <property name="text">
-    <string>Liste des couches ponctuelles</string>
+    <string>Liste des couches ponctuelles 📂 </string>
    </property>
   </widget>
   <widget class="QLabel" name="labelCouche_2">
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>100</y>
-     <width>331</width>
+     <y>95</y>
+     <width>391</width>
      <height>21</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>Arial</family>
+     <family>Georgia</family>
      <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
     </font>
    </property>
    <property name="text">
-    <string>Voici les coordonnées géographiques du point cliqué :</string>
+    <string>Voici quelques informations relative au point cliqué :</string>
    </property>
   </widget>
-  <widget class="QLabel" name="labelLongitude">
+  <widget class="QLabel" name="labelAdresse">
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>130</y>
-     <width>61</width>
+     <y>170</y>
+     <width>181</width>
      <height>16</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>Arial</family>
+     <family>Georgia</family>
      <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
     </font>
    </property>
    <property name="text">
-    <string>Longitude</string>
+    <string>Adresse BAN plus proche</string>
    </property>
   </widget>
-  <widget class="QLabel" name="labelLatitude">
+  <widget class="QLineEdit" name="labelAdresse_Displayed">
    <property name="geometry">
     <rect>
-     <x>210</x>
-     <y>130</y>
-     <width>51</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>Arial</family>
-     <pointsize>10</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Latitude</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="labelvaleur_Latitude">
-   <property name="geometry">
-    <rect>
-     <x>270</x>
-     <y>130</y>
-     <width>101</width>
-     <height>21</height>
+     <x>30</x>
+     <y>190</y>
+     <width>551</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="font">
@@ -131,24 +153,96 @@
     <string/>
    </property>
   </widget>
-  <widget class="QLabel" name="labelvaleur_Longitude">
+  <widget class="QWidget" name="horizontalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>130</y>
-     <width>101</width>
-     <height>21</height>
+     <x>30</x>
+     <y>120</y>
+     <width>461</width>
+     <height>31</height>
     </rect>
    </property>
-   <property name="font">
-    <font>
-     <family>Arial</family>
-     <pointsize>9</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QLabel" name="labelLatitude">
+      <property name="font">
+       <font>
+        <family>Georgia</family>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Latitude 🌍</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="labelvaleur_Longitude">
+      <property name="font">
+       <font>
+        <family>Georgia</family>
+        <pointsize>9</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: white;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QLabel" name="labelLongitude">
+      <property name="font">
+       <font>
+        <family>Georgia</family>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Longitude🌍</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="labelvaleur_Latitude">
+      <property name="font">
+       <font>
+        <family>Georgia</family>
+        <pointsize>9</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: white;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>
