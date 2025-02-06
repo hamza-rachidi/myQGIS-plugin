@@ -196,6 +196,7 @@ class InfoDisplayer:
     def run(self):
         """Run method that performs all the real work"""
 
+        self.reset_fields() 
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
@@ -217,13 +218,10 @@ class InfoDisplayer:
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            pass
+            self.reset_fields()
 
     def populate_point_layers(self):
         """Populate the combo box with point layers from the current project."""
-        self.dlg.listeCouchesPonctuelles.clear()  # Clear the combo box before populating because the layers may change in the project 
 
         # Iterate through all layers in the project
         for couche in QgsProject.instance().mapLayers().values():
@@ -283,3 +281,11 @@ class InfoDisplayer:
         
         except requests.RequestException as e:
             return f"Erreur lors de la requête: {e}"
+
+    def reset_fields(self):
+        """Réinitialise les champs des coordonnées et de l'adresse."""
+        self.dlg.listeCouchesPonctuelles.clear()
+        self.dlg.labelvaleur_Longitude.setText("")
+        self.dlg.labelvaleur_Latitude.setText("")
+        self.dlg.labelAdresse_Displayed.setText("")  
+        

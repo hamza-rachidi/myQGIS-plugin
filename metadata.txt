@@ -3,14 +3,14 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=Info Displayer
+name=Info Explorer
 qgisMinimumVersion=3.0
-description=This plugin aims to showcase relevant informations about your open project
+description=Un simple plugin QGIS pour explorer et afficher des informations interessantes sur ton projet QGIS.
 version=0.1
 author=Hamza widgets Inc.
 email=hamza.rachidi@ensg.eu
 
-about=This plugin enables you to show data
+about=Le plugin QGIS permet de récupérer les couches ponctuelles ouvertes, les coordonnées et l'adresse BAN la plus proche du point que l'utilisateur clique à chaque fois.
 
 tracker=https://github.com/hamza-rachidi/myQGIS-plugin/issues
 repository=https://github.com/hamza-rachidi/myQGIS-plugin
