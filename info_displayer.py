@@ -24,8 +24,13 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
+
 # imports for the first user story 
 from qgis.core import QgsProject, QgsMapLayerType, QgsWkbTypes
+
+# imports for the second user story 
+from qgis.core import QgsPointXY, QgsCoordinateReferenceSystem, QgsCoordinateTransform
+from qgis.gui import QgsMapToolEmitPoint
 
 
 
@@ -196,8 +201,14 @@ class InfoDisplayer:
             self.first_start = False
             self.dlg = InfoDisplayerDialog()
 
-        # add the function 
+        # call the function for the first user story
         self.populate_point_layers()
+
+        # Set up the map tool to capture clicked points and then call the 2nd user story function
+        self.map_tool = QgsMapToolEmitPoint(self.iface.mapCanvas())
+        self.map_tool.canvasClicked.connect(self.capture_clicked_point)
+        self.iface.mapCanvas().setMapTool(self.map_tool)
+        
 
         # show the dialog
         self.dlg.show()
@@ -218,3 +229,28 @@ class InfoDisplayer:
             # Check if the layer is a vector layer and has point geometry before displaying, otherwise linear and polygon vector as well as rasters won't be displayed
             if couche.type() == QgsMapLayerType.VectorLayer and couche.geometryType() == QgsWkbTypes.PointGeometry:
                 self.dlg.listeCouchesPonctuelles.addItem(couche.name())
+
+
+    def capture_clicked_point(self, point):
+        """Capture the clicked point on the map and display its coordinates in WGS 84 (EPSG:4326)."""
+    # Define the source and target coordinate reference systems
+        crs_source = self.iface.mapCanvas().mapSettings().destinationCrs()  # get the current CRS of the map
+        crs_cible = QgsCoordinateReferenceSystem("EPSG:4326")  # WGS 84
+
+        # Check if the source CRS is already WGS 84
+        if crs_source != crs_cible:
+            # Create a coordinate transform object
+            transform = QgsCoordinateTransform(crs_source, crs_cible, QgsProject.instance())
+            # Transform the clicked point to WGS 84
+            transformed_point = transform.transform(point)
+        else:
+            # If the source CRS is already WGS 84, use the original point
+            transformed_point = point
+
+        # Round the coordinates to 5 decimals
+        longitude = round(transformed_point.x(), 5)
+        latitude = round(transformed_point.y(), 5)
+
+        # Update the labels with the coordinates
+        self.dlg.labelvaleur_Longitude.setText(str(longitude))
+        self.dlg.labelvaleur_Latitude.setText(str(latitude))
