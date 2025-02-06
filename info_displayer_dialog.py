@@ -27,6 +27,9 @@ import os
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
 
+# imports for the first user story 
+from qgis.core import QgsProject, QgsMapLayerType, QgsWkbTypes
+
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'info_displayer_dialog_base.ui'))
@@ -42,3 +45,26 @@ class InfoDisplayerDialog(QtWidgets.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+
+
+# define the class for the first user story 
+class InfoDisplayerDialog(QtWidgets.QDialog, FORM_CLASS):
+    def __init__(self, parent=None):
+        """Constructor."""
+        super(InfoDisplayerDialog, self).__init__(parent)
+        self.setupUi(self)
+        self.populate_point_layers()
+
+    
+    def populate_point_layers(self):
+        """Populate the combo box with point layers from the current project."""
+        self.listeCouchesPonctuelles.clear()  # Clear the combo box before populating because the layers may change in the project 
+
+        # Get the current project
+        project = QgsProject.instance()
+
+        # Iterate through all layers in the project
+        for couche in project.mapLayers().values():
+            # Check if the layer is a vector layer and has point geometry before displaying, otherwise linear and polygon vector as well as rasters won't be displayed
+            if couche.type() == QgsMapLayerType.VectorLayer and couche.geometryType() == QgsWkbTypes.PointGeometry:
+                self.listeCouchesPonctuelles.addItem(couche.name())
