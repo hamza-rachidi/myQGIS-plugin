@@ -297,6 +297,8 @@ class InfoDisplayer:
         self.dlg.labelvaleur_Longitude.setText("")
         self.dlg.labelvaleur_Latitude.setText("")
         self.dlg.labelAdresse_Displayed.setText("") 
+        self.dlg.resultDisplay.setText("")
+        self.dlg.distanceInput.setText("")
 
     def create_buffer(self, clicked_point, distance_in_meters):
         """Creates a buffer zone around the clicked point.
