@@ -25,6 +25,9 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
+# imports to add errors handling 
+from qgis.core import Qgis
+
 # imports for the first user story 
 from qgis.core import QgsProject, QgsMapLayerType, QgsWkbTypes
 
@@ -331,6 +334,7 @@ class InfoDisplayer:
         try:
             distance_meter = float(distance_text)  # Convertir en nombre
         except ValueError:
+            self.iface.messageBar().pushMessage("Error", "Distance invalide, réecris une valeur numérique", level=Qgis.Critical)
             self.dlg.resultDisplay.setText("Distance invalide")
             return
 
@@ -345,8 +349,7 @@ class InfoDisplayer:
         layers = QgsProject.instance().mapLayersByName(layer_name)
         print (layers)
         if len(layers) > 1:
-            self.dlg.resultDisplay.setText("Attention ! plusieurs couches portent ce nom")
-            return
+            self.iface.messageBar().pushMessage("Warning", "Attention ! plusieurs couches portent ce nom, pense à renommer les noms de tes couches ", level=Qgis.Critical)
         layer = layers[0] # in case there are many layers with the same name 
 
         buffer_geometry = self.create_buffer(point, distance_meter)
