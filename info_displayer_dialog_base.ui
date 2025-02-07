@@ -40,7 +40,7 @@ QPushButton:hover {
   <widget class="QDialogButtonBox" name="button_box">
    <property name="geometry">
     <rect>
-     <x>580</x>
+     <x>760</x>
      <y>470</y>
      <width>81</width>
      <height>41</height>
@@ -258,7 +258,7 @@ QPushButton:hover {
     <rect>
      <x>30</x>
      <y>260</y>
-     <width>761</width>
+     <width>731</width>
      <height>20</height>
     </rect>
    </property>
@@ -271,7 +271,7 @@ QPushButton:hover {
     </font>
    </property>
    <property name="text">
-    <string>Saisissez la distance en mètres (X)  du point cliqué pour créer le buffer et compter le nombre d'objets: 📏</string>
+    <string>Saisissez la distance en mètres  du point cliqué pour créer le buffer et compter le nombre d'objets: 📏</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="distanceInput">
@@ -338,7 +338,7 @@ QPushButton:hover {
     <rect>
      <x>30</x>
      <y>370</y>
-     <width>200</width>
+     <width>101</width>
      <height>30</height>
     </rect>
    </property>
