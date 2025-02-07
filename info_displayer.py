@@ -41,6 +41,11 @@ import requests
 # imports for the forth user story 
 from qgis.core import QgsGeometry, QgsFeatureRequest
 
+# imports for the fifth user story 
+from qgis.core import QgsVectorLayer, QgsFeature, QgsField, QgsFields, QgsSymbol, QgsSimpleLineSymbolLayer, QgsSingleSymbolRenderer
+from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtGui import QColor 
+
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
@@ -221,7 +226,7 @@ class InfoDisplayer:
         
         # Connect the button "Rechercher" to the defined method handle_search
         self.dlg.searchButton.clicked.connect(self.handle_search)
-
+        self.dlg.finished.connect(self.remove_old_buffer_layer)
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
@@ -361,4 +366,52 @@ class InfoDisplayer:
         count = self.count_objects_in_buffer(buffer_geometry, layer)
 
         self.dlg.resultDisplay.setText(str(count))
+
+        # Remove the old buffer zone if it exists
+        self.remove_old_buffer_layer()
+
+        # Create a new temporary layer for the buffer zone
+        buffer_layer = self.create_temporary_buffer_layer()
+
+        # Add the buffer zone to the layer
+        self.add_buffer_to_layer(buffer_layer, buffer_geometry)
+
+        # Add the temporary layer to the project
+        QgsProject.instance().addMapLayer(buffer_layer)
+
+    def create_temporary_buffer_layer(self):
+        """
+        Creates a temporary layer to display the buffer zone.
+        """
+        layer = QgsVectorLayer("Polygon?crs=EPSG:4326", "Zone tampon", "memory")
         
+        fields = QgsFields()
+        fields.append(QgsField("id", QVariant.Int))
+        layer.dataProvider().addAttributes(fields)
+        layer.updateFields()
+        
+        # Configure the style of the buffer zone
+        symbol = QgsSymbol.defaultSymbol(layer.geometryType())
+        symbol_layer = QgsSimpleLineSymbolLayer(color=QColor(0, 0, 0), width=0.5)
+        symbol.changeSymbolLayer(0, symbol_layer)
+        renderer = QgsSingleSymbolRenderer(symbol)
+        layer.setRenderer(renderer)
+        
+        return layer
+
+    def add_buffer_to_layer(self, layer, buffer_geometry):
+        """Adds the buffer zone to the temporary layer.  """
+        feature = QgsFeature()
+        feature.setGeometry(buffer_geometry)
+        feature.setAttributes([1]) 
+
+        layer.dataProvider().addFeatures([feature])
+        layer.updateExtents()
+
+    def remove_old_buffer_layer(self):
+        """ Deletes exisiting layers if there are ones"""
+        # Récupérer la couche temporaire existante
+        old_layer = QgsProject.instance().mapLayersByName("Zone tampon")
+        if old_layer:
+            QgsProject.instance().removeMapLayer(old_layer[0].id())
+            
