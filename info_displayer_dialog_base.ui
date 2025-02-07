@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>627</width>
-    <height>474</height>
+    <width>853</width>
+    <height>513</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,14 +26,23 @@ QLineEdit {
 }
 QLabel {
     font-weight: bold;
+}
+QPushButton {
+    background-color: #81A1C1;
+    color: white;
+    border-radius: 4px;
+    padding: 5px;
+}
+QPushButton:hover {
+    background-color: #5E81AC;
 }</string>
   </property>
   <widget class="QDialogButtonBox" name="button_box">
    <property name="geometry">
     <rect>
-     <x>440</x>
-     <y>430</y>
-     <width>171</width>
+     <x>580</x>
+     <y>470</y>
+     <width>81</width>
      <height>41</height>
     </rect>
    </property>
@@ -48,7 +57,7 @@ QLabel {
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>50</y>
+     <y>40</y>
      <width>261</width>
      <height>31</height>
     </rect>
@@ -75,7 +84,7 @@ QLabel {
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>30</y>
+     <y>20</y>
      <width>241</width>
      <height>16</height>
     </rect>
@@ -118,7 +127,7 @@ QLabel {
     <rect>
      <x>30</x>
      <y>170</y>
-     <width>181</width>
+     <width>201</width>
      <height>16</height>
     </rect>
    </property>
@@ -131,7 +140,7 @@ QLabel {
     </font>
    </property>
    <property name="text">
-    <string>Adresse BAN plus proche</string>
+    <string>Adresse BAN plus proche 📍</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="labelAdresse_Displayed">
@@ -243,6 +252,108 @@ QLabel {
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QLabel" name="labelDistance">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>260</y>
+     <width>761</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Georgia</family>
+     <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Saisissez la distance en mètres (X)  du point cliqué pour créer le buffer et compter le nombre d'objets: 📏</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="distanceInput">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>290</y>
+     <width>200</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>9</pointsize>
+    </font>
+   </property>
+   <property name="placeholderText">
+    <string>Entrez une distance en mètres</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="searchButton">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>290</y>
+     <width>100</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Georgia</family>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Rechercher</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelResult">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>340</y>
+     <width>291</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Georgia</family>
+     <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Nombre d'objets aux mètres spécifiés :</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="resultDisplay">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>370</y>
+     <width>200</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>9</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
   </widget>
  </widget>
  <resources/>

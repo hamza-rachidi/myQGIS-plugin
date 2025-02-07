@@ -25,6 +25,9 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
+# imports to add errors handling 
+from qgis.core import Qgis
+
 # imports for the first user story 
 from qgis.core import QgsProject, QgsMapLayerType, QgsWkbTypes
 
@@ -34,6 +37,9 @@ from qgis.gui import QgsMapToolEmitPoint
 
 # imports for the third user story 
 import requests
+
+# imports for the forth user story 
+from qgis.core import QgsGeometry, QgsFeatureRequest
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -196,6 +202,8 @@ class InfoDisplayer:
     def run(self):
         """Run method that performs all the real work"""
 
+        self.last_clicked_point_native = None
+        self.last_clicked_point_wgs84 = None
         self.reset_fields() 
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
@@ -211,6 +219,8 @@ class InfoDisplayer:
         self.map_tool.canvasClicked.connect(self.capture_clicked_point)
         self.iface.mapCanvas().setMapTool(self.map_tool)
         
+        # Connect the button "Rechercher" to the defined method handle_search
+        self.dlg.searchButton.clicked.connect(self.handle_search)
 
         # show the dialog
         self.dlg.show()
@@ -229,26 +239,25 @@ class InfoDisplayer:
             if couche.type() == QgsMapLayerType.VectorLayer and couche.geometryType() == QgsWkbTypes.PointGeometry:
                 self.dlg.listeCouchesPonctuelles.addItem(couche.name())
 
+    def transform_coordinates(self, point, source_crs, target_crs):
+        """Transforme un point d'un CRS source vers un CRS cible"""
+        transform = QgsCoordinateTransform(source_crs, target_crs, QgsProject.instance())
+        return transform.transform(point)
 
     def capture_clicked_point(self, point):
         """Capture the clicked point on the map and display its coordinates in WGS 84 (EPSG:4326)."""
-    # Define the source and target coordinate reference systems
+        
+        # Define the source and target coordinate reference systems
         crs_source = self.iface.mapCanvas().mapSettings().destinationCrs()  # get the current CRS of the map
         crs_cible = QgsCoordinateReferenceSystem("EPSG:4326")  # WGS 84
 
-        # Check if the source CRS is already WGS 84
-        if crs_source != crs_cible:
-            # Create a coordinate transform object
-            transform = QgsCoordinateTransform(crs_source, crs_cible, QgsProject.instance())
-            # Transform the clicked point to WGS 84
-            transformed_point = transform.transform(point)
-        else:
-            # If the source CRS is already WGS 84, use the original point
-            transformed_point = point
+        self.last_clicked_point_native = QgsPointXY(point.x(), point.y())
+
+        self.last_clicked_point_wgs84 = self.transform_coordinates(point, crs_source, crs_cible)
 
         # Round the coordinates to 5 decimals
-        longitude = round(transformed_point.x(), 5)
-        latitude = round(transformed_point.y(), 5)
+        latitude = round(self.last_clicked_point_wgs84.x(), 5)
+        longitude = round(self.last_clicked_point_wgs84.y(), 5)
 
         # Update the labels with the coordinates
         self.dlg.labelvaleur_Longitude.setText(str(longitude))
@@ -258,11 +267,12 @@ class InfoDisplayer:
         adresse = self.get_nearest_address(latitude, longitude)
         self.dlg.labelAdresse_Displayed.setText(adresse)  
         self.dlg.labelAdresse_Displayed.setReadOnly(True) # so that the user doesn't have access to change
+        self.last_clicked_point_source_crs = point
 
     def get_nearest_address(self, latitude, longitude):
         """Make a request to the GeoPlatform API to obtain the nearest address."""
         # build the url format, to get only the nearest BAN address we specify limit parameter equal to 1 and for the moment the type to housenumber
-        url = f"https://data.geopf.fr/geocodage/reverse?lat={latitude}&lon={longitude}&limit=1&type=housenumber"
+        url = f"https://data.geopf.fr/geocodage/reverse?lat={longitude}&lon={latitude}&limit=1&type=housenumber"
         
         try:
             response = requests.get(url)
@@ -287,5 +297,68 @@ class InfoDisplayer:
         self.dlg.listeCouchesPonctuelles.clear()
         self.dlg.labelvaleur_Longitude.setText("")
         self.dlg.labelvaleur_Latitude.setText("")
-        self.dlg.labelAdresse_Displayed.setText("")  
+        self.dlg.labelAdresse_Displayed.setText("") 
+        self.dlg.resultDisplay.setText("")
+        self.dlg.distanceInput.setText("")
+
+    def create_buffer(self, clicked_point, distance_in_meters):
+        """Creates a buffer zone around the clicked point.
+        :return: a QgsGeometry object representing the buffer zone"""
+        point_geometry = QgsGeometry.fromPointXY(clicked_point)
+        buffer_geometry = point_geometry.buffer(distance_in_meters, 10)  # 10 was chosen as the number of segments for the circle
+        
+        return buffer_geometry
+    
+    def count_objects_in_buffer(self, buffer_geometry, layer):
+        """Counts the layer objects present in the buffer zone.
+
+        :return: Le nombre d'objets dans la zone tampon."""
+        # Retrieve the bounding box of the buffer zone
+        bbox = buffer_geometry.boundingBox()
+        
+        # Create a query to filter objects within the bounding box
+        request = QgsFeatureRequest().setFilterRect(bbox)
+        
+        # Count objects that intersect the bounding box
+        count = 0
+        for feature in layer.getFeatures(request):
+            if buffer_geometry.intersects(feature.geometry()):
+                count += 1
+        
+        return count
+    
+    def handle_search(self):
+        """The  function that implements the 4th user story and handles the user counting request"""
+        # Captures the distance entered by the user
+        distance_text = self.dlg.distanceInput.text()
+        try:
+            distance_meter = float(distance_text)  # Convertir en nombre
+        except ValueError:
+            self.iface.messageBar().pushMessage("Error", "Distance invalide, réecris une valeur numérique", level=Qgis.Critical)
+            self.dlg.resultDisplay.setText("Distance invalide")
+            return
+
+        # Retrieve the clicked point that is from now on stored
+        if not hasattr(self, 'last_clicked_point_native'):
+            self.dlg.resultDisplay.setText("Aucun point cliqué")
+            return
+        point = self.last_clicked_point_native
+
+        # Retrieve the layer selected from the drop-down menu of the 1st user story
+        layer_name = self.dlg.listeCouchesPonctuelles.currentText()
+        layers = QgsProject.instance().mapLayersByName(layer_name)
+        print (layers)
+        if len(layers) > 1:
+            self.iface.messageBar().pushMessage("Warning", "Attention ! plusieurs couches portent ce nom, pense à renommer les noms de tes couches ", level=Qgis.Critical)
+        layer = layers[0] # in case there are many layers with the same name 
+
+        buffer_geometry = self.create_buffer(point, distance_meter)
+        layer_crs = layer.crs()
+        map_crs = self.iface.mapCanvas().mapSettings().destinationCrs()
+        buffer_geometry.transform(QgsCoordinateTransform(map_crs, layer_crs, QgsProject.instance()))
+
+        # Comptage des objets dans la zone tampon
+        count = self.count_objects_in_buffer(buffer_geometry, layer)
+
+        self.dlg.resultDisplay.setText(str(count))
         
