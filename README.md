@@ -1,5 +1,5 @@
 InfoDisplayer - mon plugin QGIS
-
+![Apercu de plugin](Capture.PNG)
 
 📌 Description
 InfoDisplayer est un plugin pour QGIS permettant d'afficher et d'analyser des informations géographiques autour d'un point sélectionné. Il inclut les fonctionnalités suivantes :
