@@ -226,7 +226,7 @@ class InfoDisplayer:
         
         # Connect the button "Rechercher" to the defined method handle_search
         self.dlg.searchButton.clicked.connect(self.handle_search)
-
+        self.dlg.finished.connect(self.remove_old_buffer_layer)
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
