@@ -199,6 +199,8 @@ class InfoDisplayer:
     def run(self):
         """Run method that performs all the real work"""
 
+        self.last_clicked_point_native = None
+        self.last_clicked_point_wgs84 = None
         self.reset_fields() 
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
@@ -234,30 +236,25 @@ class InfoDisplayer:
             if couche.type() == QgsMapLayerType.VectorLayer and couche.geometryType() == QgsWkbTypes.PointGeometry:
                 self.dlg.listeCouchesPonctuelles.addItem(couche.name())
 
+    def transform_coordinates(self, point, source_crs, target_crs):
+        """Transforme un point d'un CRS source vers un CRS cible"""
+        transform = QgsCoordinateTransform(source_crs, target_crs, QgsProject.instance())
+        return transform.transform(point)
 
     def capture_clicked_point(self, point):
         """Capture the clicked point on the map and display its coordinates in WGS 84 (EPSG:4326)."""
-
-        # Store the clicked point
-        self.last_clicked_point = point
-
+        
         # Define the source and target coordinate reference systems
         crs_source = self.iface.mapCanvas().mapSettings().destinationCrs()  # get the current CRS of the map
         crs_cible = QgsCoordinateReferenceSystem("EPSG:4326")  # WGS 84
 
-        # Check if the source CRS is already WGS 84
-        if crs_source != crs_cible:
-            # Create a coordinate transform object
-            transform = QgsCoordinateTransform(crs_source, crs_cible, QgsProject.instance())
-            # Transform the clicked point to WGS 84
-            transformed_point = transform.transform(point)
-        else:
-            # If the source CRS is already WGS 84, use the original point
-            transformed_point = point
+        self.last_clicked_point_native = QgsPointXY(point.x(), point.y())
+
+        self.last_clicked_point_wgs84 = self.transform_coordinates(point, crs_source, crs_cible)
 
         # Round the coordinates to 5 decimals
-        longitude = round(transformed_point.x(), 5)
-        latitude = round(transformed_point.y(), 5)
+        latitude = round(self.last_clicked_point_wgs84.x(), 5)
+        longitude = round(self.last_clicked_point_wgs84.y(), 5)
 
         # Update the labels with the coordinates
         self.dlg.labelvaleur_Longitude.setText(str(longitude))
@@ -267,11 +264,12 @@ class InfoDisplayer:
         adresse = self.get_nearest_address(latitude, longitude)
         self.dlg.labelAdresse_Displayed.setText(adresse)  
         self.dlg.labelAdresse_Displayed.setReadOnly(True) # so that the user doesn't have access to change
+        self.last_clicked_point_source_crs = point
 
     def get_nearest_address(self, latitude, longitude):
         """Make a request to the GeoPlatform API to obtain the nearest address."""
         # build the url format, to get only the nearest BAN address we specify limit parameter equal to 1 and for the moment the type to housenumber
-        url = f"https://data.geopf.fr/geocodage/reverse?lat={latitude}&lon={longitude}&limit=1&type=housenumber"
+        url = f"https://data.geopf.fr/geocodage/reverse?lat={longitude}&lon={latitude}&limit=1&type=housenumber"
         
         try:
             response = requests.get(url)
@@ -337,13 +335,10 @@ class InfoDisplayer:
             return
 
         # Retrieve the clicked point that is from now on stored
-        if not hasattr(self, 'last_clicked_point'):
+        if not hasattr(self, 'last_clicked_point_native'):
             self.dlg.resultDisplay.setText("Aucun point cliqué")
             return
-        point = self.last_clicked_point
-
-        # Create the buffer zone
-        buffer_geometry = self.create_buffer(point, distance_meter)
+        point = self.last_clicked_point_native
 
         # Retrieve the layer selected from the drop-down menu of the 1st user story
         layer_name = self.dlg.listeCouchesPonctuelles.currentText()
@@ -354,7 +349,12 @@ class InfoDisplayer:
             return
         layer = layers[0] # in case there are many layers with the same name 
 
-        # Count the objects in the buffer zone
+        buffer_geometry = self.create_buffer(point, distance_meter)
+        layer_crs = layer.crs()
+        map_crs = self.iface.mapCanvas().mapSettings().destinationCrs()
+        buffer_geometry.transform(QgsCoordinateTransform(map_crs, layer_crs, QgsProject.instance()))
+
+        # Comptage des objets dans la zone tampon
         count = self.count_objects_in_buffer(buffer_geometry, layer)
 
         self.dlg.resultDisplay.setText(str(count))
