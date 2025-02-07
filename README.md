@@ -1,4 +1,5 @@
 InfoDisplayer - mon plugin QGIS
+
 ![Apercu de plugin](Capture.PNG)
 
 📌 Description
