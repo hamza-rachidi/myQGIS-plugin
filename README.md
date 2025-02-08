@@ -36,6 +36,6 @@ C:\Users\XXX\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins
 2. Cliquer sur la carte pour capturer un point, et afficher ses coordonnées géographiques, et obtenir l’adresse la plus proche ( voie: son numéro, type et nom ; code insee; nom de commune) du point selectionné avec le curseur "+".  
 3. Appuyer sur le bouton "Rechercher" pour :  
    - Calculer et afficher la zone tampon situé à la distance que tu as saisis.  
-   - Afficher le nombre d'objets comptés dans la zone tampon .  
+   - Afficher le nombre d'objets de la couche vectorielle sélectionnée figurant dans la zone tampon .  
 
 
