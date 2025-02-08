@@ -16,7 +16,7 @@ InfoDisplayer est un plugin pour QGIS permettant d'afficher et d'analyser des in
 
 ## 🚀 **Installation**  
 1. Télécharger le dépôt du plugin sous format .zip.  
-2. Placez le dossier après l'avoir dézipé dans votre répertoire des plugins QGIS qui peut ressembler à:  
+2. Placez le dossier après l'avoir dézipé dans votre répertoire des plugins QGIS dans le chemin qui peut ressembler à:  
 
 - Pour Windows :
 ```
