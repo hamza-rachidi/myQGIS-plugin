@@ -12,8 +12,6 @@ InfoDisplayer est un plugin pour QGIS permettant d'afficher et d'analyser des in
     - Comptage des objets présents dans la zone tampon.
     - Affichage du buffer sur la carte avec un style personnalisé. 
 
-Voici un **README** clair et bien structuré pour ton plugin QGIS. Il inclut une section expliquant comment ajouter une **capture d'écran** dans le fichier `README.md`.  
-
 ---
 
 ## 🚀 **Installation**  
